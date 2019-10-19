@@ -54,7 +54,7 @@ const char* cities[] = {
   {                           \
     HP_ErrorCode code = call; \
     if (code != HP_OK) {      \
-      printf("Error\n");      \
+      printf("Error!!!\n");      \
       exit(code);             \
     }                         \
   }
@@ -89,12 +89,14 @@ int main() {
   int fd;
   CALL_OR_DIE(HP_CreateFile("data.db"));
   CALL_OR_DIE(HP_OpenFile("data.db", &fd));
+  // printf("To fd gyrise me %d.\n",fd);
 
   Record record;
   srand(12569874);
   int r;
   printf("Insert Entries\n");
-  for (int id = 0; id < RECORDS_NUM; ++id) {
+  // for (int id = 0; id < RECORDS_NUM; ++id) {
+  for (int id = 0; id < 1; ++id) {
     record.id = id;
     r = rand() % 12;
     memcpy(record.name, names[r], strlen(names[r]) + 1);
@@ -106,18 +108,19 @@ int main() {
     CALL_OR_DIE(HP_InsertEntry(fd, record));
   }
 
-  printf("RUN TestFileScan\n");
-  RUN_AND_TIME(TestFileScan(fd));
+  // printf("RUN TestFileScan\n");
+  // RUN_AND_TIME(TestFileScan(fd));
 
-  printf("RUN PrintAllEntries\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
+  // printf("RUN PrintAllEntries\n");
+  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
 
-  printf("Get Entry with rowid 1000\n");
-  CALL_OR_DIE(HP_GetEntry(fd, 1000, &record));
-  printf("%d,\"%s\",\"%s\",\"%s\"\n",
-      record.id, record.name, record.surname, record.city);
+  // printf("Get Entry with rowid 1000\n");
+  // CALL_OR_DIE(HP_GetEntry(fd, 1000, &record));
+  // printf("%d,\"%s\",\"%s\",\"%s\"\n",
+  //     record.id, record.name, record.surname, record.city);
 
   CALL_OR_DIE(HP_CloseFile(fd));
   BF_Close();
+  // memcpi
 }
 
