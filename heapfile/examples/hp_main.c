@@ -89,14 +89,13 @@ int main() {
   int fd;
   CALL_OR_DIE(HP_CreateFile("data.db"));
   CALL_OR_DIE(HP_OpenFile("data.db", &fd));
-  // printf("To fd gyrise me %d.\n",fd);
 
   Record record;
   srand(12569874);
   int r;
   printf("Insert Entries\n");
   // for (int id = 0; id < RECORDS_NUM; ++id) {
-  for (int id = 0; id < 1; ++id) {
+  for (int id = 0; id < 2; ++id) {
     record.id = id;
     r = rand() % 12;
     memcpy(record.name, names[r], strlen(names[r]) + 1);
