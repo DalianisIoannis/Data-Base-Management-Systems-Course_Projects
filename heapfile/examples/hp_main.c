@@ -94,9 +94,9 @@ int main() {
   Record record;
   srand(12569874);
   int r;
-  printf("Insert Entries\n");
+  // printf("Insert Entries\n");
   // for (int id = 0; id < RECORDS_NUM; ++id) {
-  for (int id = 0; id < 2; ++id) {
+  for (int id = 0; id < 3; ++id) {
     record.id = id;
     r = rand() % 12;
     memcpy(record.name, names[r], strlen(names[r]) + 1);

@@ -58,12 +58,17 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
   //insert code here
   int block_counter;
   char* data;
+  int numerous=0;
   BF_Block *block;
   BF_Block_Init(&block);
+
+  printf("%s %s %s\n",record.name, record.surname, record.city);
   
   CALL_BF(BF_GetBlockCounter(fileDesc, &block_counter));
 
   if(block_counter==1){
+    printf("mpainei h eisodos %d sto if\n",numerous);
+    numerous++;
     CALL_BF(BF_AllocateBlock(fileDesc, block));
     data=BF_Block_GetData(block);
     memset(data, 1, 1); //einai to 1o mplok
@@ -76,6 +81,9 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
     CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
     data=BF_Block_GetData(block);
     if(data[0]!=8){
+      printf("mpainei h eisodos %d sto else\n",numerous);
+      numerous++;
+      printf("mesa sthn insert to data[0] %d\n",data[0]);
       memset(data, data[0]+1, 1);
       memcpy(data+1+data[0]*59+4, record.name, 15);
       memcpy(data+1+data[0]*59+4+15, record.surname, 20);
@@ -105,7 +113,7 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
   // print oles tis EGGRAFES(record) pou sto attrname
   // exoun timi value. An to value einai NULL
   // tote ektiponei oles tis eggrafes pou iparxoun
-  printf("Edose value %s\n", value);
+  // printf("Edose value %s\n", value);
   char* data;
   int block_counter;
   char characteristic[5];
@@ -126,19 +134,18 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
       CALL_BF(BF_GetBlock(fileDesc, i, block));
       data=BF_Block_GetData(block);
       // prepei na pairno mono otan protompaino sto mplok to data[0]
-      if(i==1){
-        block_entries=data[0];
-      }
+      // mplok entries to plithos eggrafon
+      block_entries=data[0];
       printf("to mplok entries einai %d\n",block_entries);
       for(int j=0; j<block_entries; j++){
+        printf("mesa to j einai %d\n",j);
         char name[15], surname[20], city[20];
         memcpy(name, data+1+j*59+4, 15);
         memcpy(surname, data+1+j*59+4+15, 20);
         memcpy(city, data+1+j*59+4+15+20, 20);
         printf("TYPONO %s %s %s\n",name, surname, city);
       }
-
-    CALL_BF(BF_UnpinBlock(block));
+      CALL_BF(BF_UnpinBlock(block));
   }
   // CALL_BF(BF_UnpinBlock(block));
   BF_Block_Destroy(&block);
