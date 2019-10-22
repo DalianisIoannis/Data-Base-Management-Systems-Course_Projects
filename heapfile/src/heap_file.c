@@ -43,6 +43,8 @@ HP_ErrorCode HP_CreateFile(const char *filename) {
 HP_ErrorCode HP_OpenFile(const char *fileName, int *fileDesc){
   //insert code here
   CALL_BF(BF_OpenFile(fileName, fileDesc));
+  // prepei na diavazei thn pliroforia tou protou mplok
+  // an h plhroforia einai oxi gia HPFile mhnyma lathous
   return HP_OK;
 }
 
@@ -80,6 +82,7 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
       memcpy(data+1+data[0]*59+4+15+20, record.city, 20);
     }
     else{//block full
+    // make new block
       CALL_BF(BF_UnpinBlock(block));
       CALL_BF(BF_AllocateBlock(fileDesc, block));
       data=BF_Block_GetData(block);
@@ -99,11 +102,68 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
 
 HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
   //insert code here
-  
+  // print oles tis EGGRAFES(record) pou sto attrname
+  // exoun timi value. An to value einai NULL
+  // tote ektiponei oles tis eggrafes pou iparxoun
+  printf("Edose value %s\n", value);
+  char* data;
+  int block_counter;
+  char characteristic[5];
+  int block_entries;
+  BF_Block *block;
+  BF_Block_Init(&block);
+
+  CALL_BF(BF_GetBlockCounter(fileDesc, &block_counter));//synolo olon ton mplok sto HPFIle
+  printf("block counter %d\n", block_counter);
+
+  CALL_BF(BF_GetBlock(fileDesc, 0, block));
+  data=BF_Block_GetData(block);
+  memcpy(characteristic, data, 5);
+  printf("To characteristic einai %s\n", characteristic);
+  CALL_BF(BF_UnpinBlock(block));
+
+  for(int i=1; i<block_counter; i++){
+      CALL_BF(BF_GetBlock(fileDesc, i, block));
+      data=BF_Block_GetData(block);
+      // prepei na pairno mono otan protompaino sto mplok to data[0]
+      if(i==1){
+        block_entries=data[0];
+      }
+      printf("to mplok entries einai %d\n",block_entries);
+      for(int j=0; j<block_entries; j++){
+        char name[15], surname[20], city[20];
+        memcpy(name, data+1+j*59+4, 15);
+        memcpy(surname, data+1+j*59+4+15, 20);
+        memcpy(city, data+1+j*59+4+15+20, 20);
+        printf("TYPONO %s %s %s\n",name, surname, city);
+      }
+
+    CALL_BF(BF_UnpinBlock(block));
+  }
+  // CALL_BF(BF_UnpinBlock(block));
+  BF_Block_Destroy(&block);
   return HP_OK;
 }
 
 HP_ErrorCode HP_GetEntry(int fileDesc, int rowId, Record *record) {
   //insert code here
+  // thelo eggrafi pou vrisketai sthn rowId thesi tou arxeiou sorou
+  // ousiastika rowId-1
+  // exo thn eggrafi pou thelo alla prepei prota na pairno 
+  // to block sto opoio yparxei
+  // apla diavazo dedomena ara de xreiazetai Dirty
+
+  // printf("Mpike.\n");
+  // int block_counter;
+  // char* data;
+  // BF_Block *block;
+  // BF_Block_Init(&block);
+
+  // CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
+
+  // CALL_BF(BF_UnpinBlock(block));
+  // BF_Block_Destroy(&block);
+  // printf("Vgike.\n");
+
   return HP_OK;
 }

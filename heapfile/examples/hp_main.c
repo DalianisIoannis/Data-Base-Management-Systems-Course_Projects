@@ -72,6 +72,7 @@ void TestFileScan(int fileDesc) {
   // printf("id,name,surname,city\n");
   for (int j = 1; j <= 500; ++j) {
     for (int id = RECORDS_NUM; id != 0; --id) {
+    // for (int id = 1; id != 0; --id) {
       CALL_OR_DIE(HP_GetEntry(fileDesc, id, &record));
       // printf("%d,\"%s\",\"%s\",\"%s\"\n",
       //        record.id, record.name, record.surname, record.city);
@@ -110,8 +111,8 @@ int main() {
   // printf("RUN TestFileScan\n");
   // RUN_AND_TIME(TestFileScan(fd));
 
-  // printf("RUN PrintAllEntries\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
+  printf("RUN PrintAllEntries\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
 
   // printf("Get Entry with rowid 1000\n");
   // CALL_OR_DIE(HP_GetEntry(fd, 1000, &record));
