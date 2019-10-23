@@ -30,12 +30,16 @@ HP_ErrorCode HP_CreateFile(const char *filename) {
   CALL_BF(BF_CreateFile(filename));
 
   CALL_BF(BF_OpenFile(filename, &file_desc));
+
   CALL_BF(BF_AllocateBlock(file_desc, block));
   data=BF_Block_GetData(block);
+
   memcpy(data, "HeapF", 5);
-  
+  // to proto anagnoristiko mplok exei sta pente prota byte to HeapF
   BF_Block_SetDirty(block);
+  
   CALL_BF(BF_UnpinBlock(block));
+  CALL_BF(BF_CloseFile(file_desc));
   BF_Block_Destroy(&block);
   return HP_OK;
 }
@@ -55,64 +59,84 @@ HP_ErrorCode HP_CloseFile(int fileDesc) {
 }
 
 HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
-  //insert code here
   int block_counter;
   char* data;
-  int numerous=0;
+  int my_id;
+  char name[15], surname[20], city[20];
   BF_Block *block;
   BF_Block_Init(&block);
 
-  printf("%s %s %s\n",record.name, record.surname, record.city);
+  printf("DINO %d %s %s %s\n",record.id, record.name, record.surname, record.city);
   
   CALL_BF(BF_GetBlockCounter(fileDesc, &block_counter));
+  printf("To block_counter einai %d\n", block_counter);
 
   if(block_counter==1){
-    printf("mpainei h eisodos %d sto if\n",numerous);
-    numerous++;
+    // yparxei mono to periexomeno HPFile
     CALL_BF(BF_AllocateBlock(fileDesc, block));
     data=BF_Block_GetData(block);
+
     memset(data, 1, 1); //einai to 1o mplok
-    // memset(data+1, record.id, 1);
-    memcpy(data+1+4, record.name, 15);
-    memcpy(data+15+1+4, record.surname, 20);
-    memcpy(data+15+20+1+4, record.city, 20);
+    memcpy(data+1, &record, sizeof(Record));
+
+    memcpy(&my_id, data+1, 4);
+    memcpy(name, data+1+4, 15);
+    memcpy(surname, data+1+4+15, 20);
+    memcpy(city, data+1+4+15+20, 20);
+    printf("TYPONO STO Insert case1 %d %s %s %s\n",my_id, name, surname, city);
+    
+    BF_Block_SetDirty(block);
+    CALL_BF(BF_UnpinBlock(block));
   }
   else{
+    // periptosi pou xoraei
     CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
     data=BF_Block_GetData(block);
-    if(data[0]!=8){
-      printf("mpainei h eisodos %d sto else\n",numerous);
-      numerous++;
-      printf("mesa sthn insert to data[0] %d\n",data[0]);
-      memset(data, data[0]+1, 1);
-      memcpy(data+1+data[0]*59+4, record.name, 15);
-      memcpy(data+1+data[0]*59+4+15, record.surname, 20);
-      memcpy(data+1+data[0]*59+4+15+20, record.city, 20);
+    int temp=data[0];
+    if(temp!=8){
+      // printf("mesa sthn insert to temp %d\n",temp);
+      memset(data, temp+1, 1);
+      memcpy(data+1+temp*sizeof(Record), &record, sizeof(Record));
+
+      memcpy(&my_id, data+temp*sizeof(Record)+1, 4);
+      memcpy(name, data+temp*sizeof(Record)+4+1, 15);
+      memcpy(surname, data+1+temp*sizeof(Record)+4+15, 20);
+      memcpy(city, data+1+temp*sizeof(Record)+4+15+20, 20);
+      printf("TYPONO STO Insert case2 %d %s %s %s\n",my_id ,name, surname, city);
+
+      BF_Block_SetDirty(block);
+      CALL_BF(BF_UnpinBlock(block));
     }
-    else{//block full
-    // make new block
+    else{//block full make new block
+      // CALL_BF(BF_UnpinBlock(block));
       CALL_BF(BF_UnpinBlock(block));
       CALL_BF(BF_AllocateBlock(fileDesc, block));
       data=BF_Block_GetData(block);
+
       memset(data, 1, 1); //einai to 1o mplok
-      // memset(data+1, record.id, 1);
-      memcpy(data+1+4, record.name, 15);
-      memcpy(data+15+1+4, record.surname, 20);
-      memcpy(data+15+20+1+4, record.city, 20);
+      memcpy(data+1, &record, sizeof(Record));
+
+      memcpy(&my_id, data+1, 4);
+      memcpy(name, data+1+4, 15);
+      memcpy(surname, data+1+4+15, 20);
+      memcpy(city, data+1+4+15+20, 20);
+      printf("TYPONO STO Insert case3 %d %s %s %s\n",my_id, name, surname, city);
       
+      BF_Block_SetDirty(block);
+      CALL_BF(BF_UnpinBlock(block));
     }
   }
-  BF_Block_SetDirty(block);
-  CALL_BF(BF_UnpinBlock(block));
+
+  // BF_Block_SetDirty(block);
+  // CALL_BF(BF_UnpinBlock(block));
   BF_Block_Destroy(&block);
+  printf("\n");
   return HP_OK;
 }
 
 HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
-  //insert code here
-  // print oles tis EGGRAFES(record) pou sto attrname
-  // exoun timi value. An to value einai NULL
-  // tote ektiponei oles tis eggrafes pou iparxoun
+  // print oles tis EGGRAFES(record) pou sto attrname exoun timi 
+  // value. An to value einai NULL tote ektiponei oles tis eggrafes 
   // printf("Edose value %s\n", value);
   char* data;
   int block_counter;
@@ -133,7 +157,6 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
   for(int i=1; i<block_counter; i++){
       CALL_BF(BF_GetBlock(fileDesc, i, block));
       data=BF_Block_GetData(block);
-      // prepei na pairno mono otan protompaino sto mplok to data[0]
       // mplok entries to plithos eggrafon
       block_entries=data[0];
       printf("to mplok entries einai %d\n",block_entries);
