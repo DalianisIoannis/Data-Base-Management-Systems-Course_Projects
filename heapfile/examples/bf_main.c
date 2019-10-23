@@ -26,7 +26,7 @@ int main() {
   for (int i = 0; i < 1000; ++i) {
     CALL_OR_DIE(BF_AllocateBlock(fd, block));
     data = BF_Block_GetData(block);
-    memset(data, i % 127, BF_BUFFER_SIZE);
+    memset(data, i % 127, BF_BLOCK_SIZE);
     BF_Block_SetDirty(block);
     CALL_OR_DIE(BF_UnpinBlock(block));
   }
@@ -48,7 +48,7 @@ int main() {
   for (int i = 0; i < blocks_num; ++i) {
     CALL_OR_DIE(BF_GetBlock(fd, i, block));
     data = BF_Block_GetData(block);
-    printf("block = %d and data = %d\n", i, data[i % BF_BUFFER_SIZE]);
+    printf("block = %d and data = %d\n", i, data[i % BF_BLOCK_SIZE]);
     CALL_OR_DIE(BF_UnpinBlock(block));
   }
 

@@ -96,7 +96,8 @@ int main() {
   int r;
   // printf("Insert Entries\n");
   // for (int id = 0; id < RECORDS_NUM; ++id) {
-  for (int id = 0; id < 15; ++id) {
+  // teleutaio sosto einai to 792 me auto to block counter einai 100
+  for (int id = 0; id < 1792; ++id) {
     record.id = id;
     r = rand() % 12;
     memcpy(record.name, names[r], strlen(names[r]) + 1);
@@ -112,7 +113,20 @@ int main() {
   // RUN_AND_TIME(TestFileScan(fd));
 
   printf("RUN PrintAllEntries\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)NULL));
+
+  printf("RUN PrintAllEntries me id 10\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "id", (void *)10));
+
+  printf("RUN PrintAllEntries me name Dionisis\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "name", "Dionisis"));
+
+  printf("RUN PrintAllEntries me surname Nikolopoulos\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "surname", "Nikolopoulos"));
+
+  printf("RUN PrintAllEntries me city Amsterdam\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", "Amsterdam"));
+
 
   // printf("Get Entry with rowid 1000\n");
   // CALL_OR_DIE(HP_GetEntry(fd, 1000, &record));
