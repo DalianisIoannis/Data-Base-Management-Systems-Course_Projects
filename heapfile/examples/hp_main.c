@@ -96,7 +96,7 @@ int main() {
   int r;
   // printf("Insert Entries\n");
   // for (int id = 0; id < RECORDS_NUM; ++id) {
-  for (int id = 0; id < 20000; ++id) {
+  for (int id = 0; id < 15; ++id) {
     record.id = id;
     r = rand() % 12;
     memcpy(record.name, names[r], strlen(names[r]) + 1);
@@ -111,8 +111,8 @@ int main() {
   // printf("RUN TestFileScan\n");
   // RUN_AND_TIME(TestFileScan(fd));
 
-  // printf("RUN PrintAllEntries\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
+  printf("RUN PrintAllEntries\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
 
   // printf("Get Entry with rowid 1000\n");
   // CALL_OR_DIE(HP_GetEntry(fd, 1000, &record));

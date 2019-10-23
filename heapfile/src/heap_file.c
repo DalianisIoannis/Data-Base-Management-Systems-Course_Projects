@@ -108,7 +108,6 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
       CALL_BF(BF_UnpinBlock(block));
     }
     else{//block full make new block
-      // CALL_BF(BF_UnpinBlock(block));
       CALL_BF(BF_UnpinBlock(block));
       CALL_BF(BF_AllocateBlock(fileDesc, block));
       data=BF_Block_GetData(block);
@@ -142,6 +141,8 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
   int block_counter;
   char characteristic[5];
   int block_entries;
+  char name[15], surname[20], city[20];
+  Record record_fetched;
   BF_Block *block;
   BF_Block_Init(&block);
 
@@ -151,7 +152,7 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
   CALL_BF(BF_GetBlock(fileDesc, 0, block));
   data=BF_Block_GetData(block);
   memcpy(characteristic, data, 5);
-  printf("To characteristic einai %s\n", characteristic);
+  printf("To characteristic einai %s kai to block_counter %d\n", characteristic, block_counter);
   CALL_BF(BF_UnpinBlock(block));
 
   for(int i=1; i<block_counter; i++){
@@ -162,11 +163,11 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
       printf("to mplok entries einai %d\n",block_entries);
       for(int j=0; j<block_entries; j++){
         printf("mesa to j einai %d\n",j);
-        char name[15], surname[20], city[20];
-        memcpy(name, data+1+j*59+4, 15);
-        memcpy(surname, data+1+j*59+4+15, 20);
-        memcpy(city, data+1+j*59+4+15+20, 20);
-        printf("TYPONO %s %s %s\n",name, surname, city);
+        memcpy(&record_fetched, data+1+j*sizeof(Record), sizeof(Record));
+  //       memcpy(name, data+1+j*59+4, 15);
+  //       memcpy(surname, data+1+j*59+4+15, 20);
+  //       memcpy(city, data+1+j*59+4+15+20, 20);
+  //       printf("TYPONO %s %s %s\n",name, surname, city);
       }
       CALL_BF(BF_UnpinBlock(block));
   }
