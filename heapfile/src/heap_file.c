@@ -71,9 +71,9 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
   // printf("To block_counter einai %d\n", block_counter);
   // CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
 
-  // if(block_counter%100==1){
   if(block_counter==1){
     // yparxei mono to periexomeno HPFile
+    // tora vazo proti eggrafi
     CALL_BF(BF_AllocateBlock(fileDesc, block));
     data=BF_Block_GetData(block);
 
@@ -92,11 +92,16 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
     
   }
   else{
-    // periptosi pou xoraei
+    //exo valei hdh kapoia eggrafi sto heapfile
     CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
     data=BF_Block_GetData(block);
     int temp=data[0];
-    if(temp!=8){
+    // xoraei kainourio mplok?
+    int free_space=BF_BLOCK_SIZE-temp*sizeof(Record);
+
+    // if(temp!=8){
+    // periptosi pou xoraei sto trexon mplok
+    if(free_space>=sizeof(Record)){
       memset(data, temp+1, 1);
       // memcpy(data+1+temp*sizeof(&record), &record, sizeof(&record));
       // memcpy(data+1+temp*sizeof(Record), &record, sizeof(&record));
@@ -219,7 +224,9 @@ HP_ErrorCode HP_GetEntry(int fileDesc, int rowId, Record *record) {
 
   CALL_BF(BF_GetBlock(fileDesc, block_counter, block));
   data=BF_Block_GetData(block);
-  int my_temp=rowId%8-1;
+  int num_records=data[0];
+  // int my_temp=rowId%8-1;
+  int my_temp=rowId%num_records-1;
   printf("einai %d\n",my_temp);
   memcpy(record, data + 1 + my_temp*sizeof(Record), sizeof(Record));
 
