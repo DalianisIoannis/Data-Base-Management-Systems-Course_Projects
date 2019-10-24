@@ -138,7 +138,6 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
       CALL_BF(BF_UnpinBlock(block));
     }
   }
-
   // BF_Block_SetDirty(block);
   // CALL_BF(BF_UnpinBlock(block));
   BF_Block_Destroy(&block);
@@ -206,32 +205,36 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
 }
 
 HP_ErrorCode HP_GetEntry(int fileDesc, int rowId, Record *record) {
-  //insert code here
   // thelo eggrafi pou vrisketai sthn rowId thesi tou arxeiou sorou
   // ousiastika rowId-1
   // exo thn eggrafi pou thelo alla prepei prota na pairno 
   // to block sto opoio yparxei
   // apla diavazo dedomena ara de xreiazetai Dirty
-
   int block_counter;
   char* data;
+  int records_in_block=BF_BLOCK_SIZE/sizeof(Record);
   BF_Block *block;
   BF_Block_Init(&block);
 
-  // mplok pou thelo
-  block_counter=ceil( (float)(rowId)/8 );
-  printf("H eggrafi einai sto mplok %d\n", block_counter);
+  block_counter=ceil( (float)(rowId-1)/records_in_block );
+  // printf("H eggrafi einai sto mplok %d\n", block_counter);
 
   CALL_BF(BF_GetBlock(fileDesc, block_counter, block));
   data=BF_Block_GetData(block);
-  int num_records=data[0];
-  // int my_temp=rowId%8-1;
-  int my_temp=rowId%num_records-1;
-  printf("einai %d\n",my_temp);
+
+  int my_temp=rowId%records_in_block-1;
+  if(my_temp<0){
+    my_temp=7;
+  }
+  if(my_temp==0){
+    CALL_BF(BF_UnpinBlock(block));
+    block_counter+=1;
+    CALL_BF(BF_GetBlock(fileDesc, block_counter, block));
+    data=BF_Block_GetData(block);
+  }
   memcpy(record, data + 1 + my_temp*sizeof(Record), sizeof(Record));
 
   CALL_BF(BF_UnpinBlock(block));
   BF_Block_Destroy(&block);
-
   return HP_OK;
 }
