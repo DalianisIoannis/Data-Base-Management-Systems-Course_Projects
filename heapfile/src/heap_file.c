@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "bf.h"
 #include "heap_file.h"
@@ -16,7 +17,6 @@
 }
 
 HP_ErrorCode HP_Init() {
-  //insert code here
   return HP_OK;
 }
 
@@ -34,7 +34,7 @@ HP_ErrorCode HP_CreateFile(const char *filename) {
 
   // first block of heap file first initializes with zeros
   // and then takes the context HeapF
-  // memset(data, 0, BF_BLOCK_SIZE);
+  memset(data, 0, BF_BLOCK_SIZE);
   memcpy(data, "HeapF", sizeof("HeapF"));
 
   BF_Block_SetDirty(block);
@@ -46,7 +46,6 @@ HP_ErrorCode HP_CreateFile(const char *filename) {
 }
 
 HP_ErrorCode HP_OpenFile(const char *fileName, int *fileDesc){
-  //insert code here
   CALL_BF(BF_OpenFile(fileName, fileDesc));
   // prepei na diavazei thn pliroforia tou protou mplok
   // an h plhroforia einai oxi gia HPFile mhnyma lathous
@@ -62,7 +61,6 @@ HP_ErrorCode HP_CloseFile(int fileDesc) {
 HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
   int block_counter;
   char* data;
-  int my_id;
   char name[15], surname[20], city[20];
   BF_Block *block;
   BF_Block_Init(&block);
@@ -100,6 +98,8 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
     int temp=data[0];
     if(temp!=8){
       memset(data, temp+1, 1);
+      // memcpy(data+1+temp*sizeof(&record), &record, sizeof(&record));
+      // memcpy(data+1+temp*sizeof(Record), &record, sizeof(&record));
       memcpy(data+1+temp*sizeof(Record), &record, sizeof(Record));
 
       // memcpy(&my_id, data+temp*sizeof(Record)+1, 4);
@@ -120,6 +120,7 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
 
       memset(data, 0, BF_BLOCK_SIZE);
       memset(data, 1, 1); //einai to 1o mplok
+      // memcpy(data+1, &record, sizeof(&record));
       memcpy(data+1, &record, sizeof(Record));
 
       // memcpy(&my_id, data+1, 4);
@@ -165,9 +166,8 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
     data=BF_Block_GetData(block);
     // mplok entries to plithos eggrafon
     block_entries=data[0];
-    // printf("to mplok entries einai %d\n",block_entries);
     for(int j=0; j<block_entries; j++){
-      // printf("mesa to j einai %d\n",j);
+      // printf("tora eimai stin eggrafi %d\n",j);
       memcpy(&record_fetched, data+1+j*sizeof(Record), sizeof(Record));
       if(value==NULL){
         printf("TYPONO %d %s %s %s\n",record_fetched.id, record_fetched.name, record_fetched.surname, record_fetched.city);
@@ -190,6 +190,7 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
         }
         
       }
+      // printf("\n");
     }
     CALL_BF(BF_UnpinBlock(block));
   }
@@ -207,17 +208,23 @@ HP_ErrorCode HP_GetEntry(int fileDesc, int rowId, Record *record) {
   // to block sto opoio yparxei
   // apla diavazo dedomena ara de xreiazetai Dirty
 
-  // printf("Mpike.\n");
-  // int block_counter;
-  // char* data;
-  // BF_Block *block;
-  // BF_Block_Init(&block);
+  int block_counter;
+  char* data;
+  BF_Block *block;
+  BF_Block_Init(&block);
 
-  // CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
+  // mplok pou thelo
+  block_counter=ceil( (float)(rowId)/8 );
+  printf("H eggrafi einai sto mplok %d\n", block_counter);
 
-  // CALL_BF(BF_UnpinBlock(block));
-  // BF_Block_Destroy(&block);
-  // printf("Vgike.\n");
+  CALL_BF(BF_GetBlock(fileDesc, block_counter, block));
+  data=BF_Block_GetData(block);
+  int my_temp=rowId%8-1;
+  printf("einai %d\n",my_temp);
+  memcpy(record, data + 1 + my_temp*sizeof(Record), sizeof(Record));
+
+  CALL_BF(BF_UnpinBlock(block));
+  BF_Block_Destroy(&block);
 
   return HP_OK;
 }
