@@ -94,10 +94,8 @@ int main() {
   Record record;
   srand(12569874);
   int r;
-  // printf("Insert Entries\n");
-  // for (int id = 0; id < RECORDS_NUM; ++id) {
-  // teleutaio sosto einai to 792 me auto to block counter einai 100
-  for (int id = 0; id < 450; ++id) {
+  printf("Insert Entries\n");
+  for (int id = 0; id < RECORDS_NUM; ++id) {
     record.id = id;
     r = rand() % 12;
     memcpy(record.name, names[r], strlen(names[r]) + 1);
@@ -115,19 +113,19 @@ int main() {
   printf("RUN PrintAllEntries\n");
   CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)NULL));
 
-  printf("RUN PrintAllEntries me id 10\n");
+  printf("RUN PrintAllEntries with id 10\n");
   CALL_OR_DIE(HP_PrintAllEntries(fd, "id", (void *)10));
 
-  printf("RUN PrintAllEntries me name Dionisis\n");
+  printf("RUN PrintAllEntries with name Dionisis\n");
   CALL_OR_DIE(HP_PrintAllEntries(fd, "name", "Dionisis"));
 
-  printf("RUN PrintAllEntries me surname Nikolopoulos\n");
+  printf("RUN PrintAllEntries with surname Nikolopoulos\n");
   CALL_OR_DIE(HP_PrintAllEntries(fd, "surname", "Nikolopoulos"));
 
-  printf("RUN PrintAllEntries me city Amsterdam\n");
+  printf("RUN PrintAllEntries with city Amsterdam\n");
   CALL_OR_DIE(HP_PrintAllEntries(fd, "city", "Amsterdam"));
 
-  for(int j=236; j<271; j++){
+  for(int j=1; j<10; j++){
     printf("Get Entry with rowid %d\n",j);
     CALL_OR_DIE(HP_GetEntry(fd, j, &record));
     printf("%d,\"%s\",\"%s\",\"%s\"\n",record.id, record.name, record.surname, record.city);
