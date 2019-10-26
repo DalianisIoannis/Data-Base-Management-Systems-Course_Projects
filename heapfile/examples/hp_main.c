@@ -72,10 +72,8 @@ void TestFileScan(int fileDesc) {
   // printf("id,name,surname,city\n");
   for (int j = 1; j <= 500; ++j) {
     for (int id = RECORDS_NUM; id != 0; --id) {
-    // for (int id = 1; id != 0; --id) {
       CALL_OR_DIE(HP_GetEntry(fileDesc, id, &record));
-      // printf("%d,\"%s\",\"%s\",\"%s\"\n",
-      //        record.id, record.name, record.surname, record.city);
+      // printf("%d,\"%s\",\"%s\",\"%s\"\n",record.id, record.name, record.surname, record.city);
     }
   }
 }
@@ -107,31 +105,31 @@ int main() {
     CALL_OR_DIE(HP_InsertEntry(fd, record));
   }
 
-  // printf("RUN TestFileScan\n");
-  // RUN_AND_TIME(TestFileScan(fd));
+  printf("RUN TestFileScan\n");
+  RUN_AND_TIME(TestFileScan(fd));
 
-  printf("RUN PrintAllEntries\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)NULL));
+  // printf("RUN PrintAllEntries\n");
+  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)NULL));
 
-  printf("RUN PrintAllEntries with id 10\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "id", (void *)10));
+  // printf("RUN PrintAllEntries with id 10\n");
+  // CALL_OR_DIE(HP_PrintAllEntries(fd, "id", (void *)10));
 
-  printf("RUN PrintAllEntries with name Dionisis\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "name", "Dionisis"));
+  // printf("RUN PrintAllEntries with name Dionisis\n");
+  // CALL_OR_DIE(HP_PrintAllEntries(fd, "name", "Dionisis"));
 
-  printf("RUN PrintAllEntries with surname Nikolopoulos\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "surname", "Nikolopoulos"));
+  // printf("RUN PrintAllEntries with surname Nikolopoulos\n");
+  // CALL_OR_DIE(HP_PrintAllEntries(fd, "surname", "Nikolopoulos"));
 
-  printf("RUN PrintAllEntries with city Amsterdam\n");
-  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", "Amsterdam"));
+  // printf("RUN PrintAllEntries with city Amsterdam\n");
+  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", "Amsterdam"));
 
-  for(int j=1; j<10; j++){
-    printf("Get Entry with rowid %d\n",j);
-    CALL_OR_DIE(HP_GetEntry(fd, j, &record));
-    printf("%d,\"%s\",\"%s\",\"%s\"\n",record.id, record.name, record.surname, record.city);
-  }
+  // for(int j=1; j<10; j++){
+  //   printf("Get Entry with rowid %d\n",j);
+  //   CALL_OR_DIE(HP_GetEntry(fd, j, &record));
+  //   printf("%d,\"%s\",\"%s\",\"%s\"\n",record.id, record.name, record.surname, record.city);
+  // }
 
   CALL_OR_DIE(HP_CloseFile(fd));
   BF_Close();
+  return 0;
 }
-
