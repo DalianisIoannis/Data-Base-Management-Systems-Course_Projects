@@ -54,7 +54,7 @@ const char* cities[] = {
   {                           \
     HP_ErrorCode code = call; \
     if (code != HP_OK) {      \
-      printf("Error!!!\n");      \
+      printf("Error\n");      \
       exit(code);             \
     }                         \
   }
@@ -73,7 +73,8 @@ void TestFileScan(int fileDesc) {
   for (int j = 1; j <= 500; ++j) {
     for (int id = RECORDS_NUM; id != 0; --id) {
       CALL_OR_DIE(HP_GetEntry(fileDesc, id, &record));
-      // printf("%d,\"%s\",\"%s\",\"%s\"\n",record.id, record.name, record.surname, record.city);
+      // printf("%d,\"%s\",\"%s\",\"%s\"\n",
+      //        record.id, record.name, record.surname, record.city);
     }
   }
 }
@@ -108,28 +109,15 @@ int main() {
   printf("RUN TestFileScan\n");
   RUN_AND_TIME(TestFileScan(fd));
 
-  // printf("RUN PrintAllEntries\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)NULL));
+  printf("RUN PrintAllEntries\n");
+  CALL_OR_DIE(HP_PrintAllEntries(fd, "city", (void *)"San Francisco"));
 
-  // printf("RUN PrintAllEntries with id 10\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "id", (void *)10));
-
-  // printf("RUN PrintAllEntries with name Dionisis\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "name", "Dionisis"));
-
-  // printf("RUN PrintAllEntries with surname Nikolopoulos\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "surname", "Nikolopoulos"));
-
-  // printf("RUN PrintAllEntries with city Amsterdam\n");
-  // CALL_OR_DIE(HP_PrintAllEntries(fd, "city", "Amsterdam"));
-
-  // for(int j=1; j<10; j++){
-  //   printf("Get Entry with rowid %d\n",j);
-  //   CALL_OR_DIE(HP_GetEntry(fd, j, &record));
-  //   printf("%d,\"%s\",\"%s\",\"%s\"\n",record.id, record.name, record.surname, record.city);
-  // }
+  printf("Get Entry with rowid 1000\n");
+  CALL_OR_DIE(HP_GetEntry(fd, 1000, &record));
+  printf("%d,\"%s\",\"%s\",\"%s\"\n",
+      record.id, record.name, record.surname, record.city);
 
   CALL_OR_DIE(HP_CloseFile(fd));
   BF_Close();
-  return 0;
 }
+
