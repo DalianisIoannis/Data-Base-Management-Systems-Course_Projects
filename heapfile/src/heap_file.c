@@ -23,6 +23,7 @@ HP_ErrorCode HP_Init() {
 HP_ErrorCode HP_CreateFile(const char *filename) {
   int file_desc;
   char* data;
+  int first_counter=0;
   BF_Block *block;
   
   CALL_BF(BF_CreateFile(filename));
@@ -34,14 +35,11 @@ HP_ErrorCode HP_CreateFile(const char *filename) {
 
   data=BF_Block_GetData(block);
 
-  // first block of heap file first initializes with zeros
-  // and then takes the context HeapF
-  memset(data, 0, BF_BLOCK_SIZE);
+  // first block of heap file takes the context HeapF
   memcpy(data, "HeapF", sizeof("HeapF"));
 
   BF_Block_SetDirty(block);
   CALL_BF(BF_UnpinBlock(block));
-
   CALL_BF(BF_CloseFile(file_desc));
   BF_Block_Destroy(&block);
   return HP_OK;
@@ -81,6 +79,7 @@ HP_ErrorCode HP_CloseFile(int fileDesc) {
 HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
   int block_counter;
   char* data;
+  int temp;
   BF_Block *block;
   BF_Block_Init(&block);
   
@@ -91,28 +90,24 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
     CALL_BF(BF_AllocateBlock(fileDesc, block));
     data=BF_Block_GetData(block);
 
-    memset(data, 0, BF_BLOCK_SIZE);
-    memset(data, 1, 1);
-    memcpy(data+1, &record, sizeof(Record));
-
-    BF_Block_SetDirty(block);
-    CALL_BF(BF_UnpinBlock(block));
-    
+    temp=1;
+    memcpy(data, &temp, sizeof(int));
+    memcpy(data+sizeof(int), &record, sizeof(Record));
   }
   else{
     // there are records in the block
     CALL_BF(BF_GetBlock(fileDesc, block_counter-1, block));
     data=BF_Block_GetData(block);
-    int temp=data[0];
-    int free_space=BF_BLOCK_SIZE-temp*sizeof(Record);
+    memcpy(&temp, data, sizeof(int));
+    int free_space=BF_BLOCK_SIZE-sizeof(int)-temp*sizeof(Record);
 
     if(free_space>=sizeof(Record)){
       // current block has free space
-      memset(data, temp+1, 1);
-      memcpy(data+1+temp*sizeof(Record), &record, sizeof(Record));
-
-      BF_Block_SetDirty(block);
-      CALL_BF(BF_UnpinBlock(block));
+      memcpy(data+sizeof(int)+temp*sizeof(Record), &record, sizeof(Record));
+      // memcpy(data+BF_BLOCK_SIZE-free_space, &record, sizeof(Record));
+      temp+=1;
+      memcpy(data, &temp, sizeof(int));
+      
     }
     else{
       //block full make new block
@@ -121,14 +116,13 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
       CALL_BF(BF_AllocateBlock(fileDesc, block));
       data=BF_Block_GetData(block);
 
-      memset(data, 0, BF_BLOCK_SIZE);
-      memset(data, 1, 1);
-      memcpy(data+1, &record, sizeof(Record));
-
-      BF_Block_SetDirty(block);
-      CALL_BF(BF_UnpinBlock(block));
+      temp=1;
+      memcpy(data, &temp, sizeof(int));
+      memcpy(data+sizeof(int), &record, sizeof(Record));
     }
   }
+  BF_Block_SetDirty(block);
+  CALL_BF(BF_UnpinBlock(block));
   BF_Block_Destroy(&block);
   return HP_OK;
 }
@@ -141,7 +135,6 @@ void Print_Record(const Record *record){
 HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
   char* data;
   int block_counter;
-  char characteristic[5];
   int block_entries;
   Record record_fetched;
   BF_Block *block;
@@ -153,9 +146,9 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
     CALL_BF(BF_GetBlock(fileDesc, i, block));
     data=BF_Block_GetData(block);
     // block_entries are records of a block
-    block_entries=data[0];
+    memcpy(&block_entries, data, sizeof(int));
     for(int j=0; j<block_entries; j++){
-      memcpy(&record_fetched, data+1+j*sizeof(Record), sizeof(Record));
+      memcpy(&record_fetched, data+sizeof(int)+j*sizeof(Record), sizeof(Record));
       if(value==NULL){
         Print_Record(&record_fetched);
       }
@@ -184,27 +177,22 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
 HP_ErrorCode HP_GetEntry(int fileDesc, int rowId, Record *record) {
   int block_counter;
   char* data;
-  int records_in_block=BF_BLOCK_SIZE/sizeof(Record);
+  int my_temp;
+  int records_in_block=( BF_BLOCK_SIZE-sizeof(int) )/sizeof(Record);
   BF_Block *block;
   BF_Block_Init(&block);
 
-  block_counter=ceil( (float)(rowId-1)/records_in_block );
+  block_counter=((rowId-1)/records_in_block)+1;
 
   CALL_BF(BF_GetBlock(fileDesc, block_counter, block));
   data=BF_Block_GetData(block);
 
-  int my_temp=rowId%records_in_block-1;
+  my_temp=rowId%records_in_block-1;
   if(my_temp<0){
     my_temp=7;
   }
-  if(my_temp==0){
-    CALL_BF(BF_UnpinBlock(block));
-    block_counter+=1;
-    CALL_BF(BF_GetBlock(fileDesc, block_counter, block));
-    data=BF_Block_GetData(block);
-  }
-  
-  memcpy(record, data + 1 + my_temp*sizeof(Record), sizeof(Record));
+
+  memcpy(record, data + sizeof(int) + my_temp*sizeof(Record), sizeof(Record));
 
   CALL_BF(BF_UnpinBlock(block));
   BF_Block_Destroy(&block);
