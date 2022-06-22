@@ -1,4 +1,4 @@
-# Projects for the Course "Data Base Systems"
+# Projects for the Course "Data Base Management Systems"
 
 Implementation of techniques and algorithms for managing and searching in Relational Databases.
 
