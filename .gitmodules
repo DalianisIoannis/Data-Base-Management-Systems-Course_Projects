@@ -1,0 +1,6 @@
+[submodule "DBMS-Hash-Index"]
+	path = DBMS-Hash-Index
+	url = https://github.com/FotiadisM/DBMS-Hash-Index.git
+[submodule "DBMS-Bplus-Tree"]
+	path = DBMS-Bplus-Tree
+	url = https://github.com/FotiadisM/DBMS-Bplus-Tree.git

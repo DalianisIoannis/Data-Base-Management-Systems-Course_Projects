@@ -1,5 +1,3 @@
-# DataBasesProject1
-First Project.
+# Projects for the Course "Data Base Management Systems"
 
-execute:
-  in directory heapfile: ./build/runner
+Projects 2 and 3 were implemented along with [Fotiadis Michalis](https://github.com/FotiadisM) and [Tatas Michalis](https://github.com/MichalisTatas)
