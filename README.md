@@ -7,4 +7,5 @@ Projects 2 and 3 were implemented along with [Fotiadis Michalis](https://github.
 Links for projects 1 and 2 are in file ```.gitmodules```
 
 ## Project 3: B+ Tree
-Low level B+ Tree data index.
+
+Generic 2-field disk file, with Low level B+ Tree indexing, based on a BlockFile library. The files store integer, float or string values.
